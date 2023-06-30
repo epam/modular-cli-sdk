@@ -1,17 +1,5 @@
-# This is a temporary repository used to remap projects before push to Github
-
 # Modular CLI SDK
-
-
-### [Building distribution archives](https://packaging.python.org/en/latest/tutorials/packaging-projects/#generating-distribution-archives)
-- Make sure you have the latest version of PyPA’s build installed: `python3 -m pip install --upgrade build`
-- Run the command form the same directory where `pyptoject.toml` is located: `python3 -m build`
-- This command should output a lot of text and once completed should generate two files in the dist directory:
-```
-dist/
-    modular_cli_sdk-{version}.tar.gz
-    modular_cli_sdk-{version}-py3-none-any.whl
-```
+Modular CLI SDK is a core component for CLI tools built atop of Modular Framework
 
 ### Installation
 To install Modular CLI SDK please use `pip` command:
@@ -45,19 +33,19 @@ configuration.credentials_manager.extract()
 
 * store(config= ) # saving given configuration  
   Parameters:
-  * config (dict) [Required] - takes a dictionary with tool configuration data  
+  * `config` (dict) [Required] - takes a dictionary with tool configuration data  
   Return type:
-  * str  
+  * `str`  
 
 * extract() # retrieve saved configuration  
   Parameters:
-  * None  
+  * `None`  
   Return type:
-  * dict
+  * `dict`
 
 * clean_up() # delete saved configuration 
   Parameters:
-  * None  
+  * `None`  
   Return type:
-  * str  
+  * `str`  
   
