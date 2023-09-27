@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from abc import ABC, abstractmethod
 from functools import cached_property
 from pathlib import Path
@@ -119,13 +120,12 @@ class FileSystemCredentialsManager(AbstractCredentialsManager):
 
     def clean_up(self) -> str:
         try:
-            os.remove(path=self.config_file_path)
-            os.removedirs(self.creds_folder_path)
+            shutil.rmtree(self.creds_folder_path)
         except FileNotFoundError:
             return f'Configuration for {self.module_name} tool not found. ' \
                    f'Nothing to delete'
         except OSError:
-            _LOG.exception(
+            _LOG.error(
                 f'Error occurred while cleaning {self.module_name} '
                 f'configuration by path: {self.creds_folder_path}.')
         return f'The {self.module_name} tool configuration has been deleted.'
