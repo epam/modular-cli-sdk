@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [3.0.0] - 2025-07-08
+* Remove `setup.py`, `requirements.txt`, and `setup.cfg` files
+* Update the `pyproject.toml` file
+* Update library dependencies:
+  * `boto3` from `==1.26.80` to `>=1.36.11,<2`
+  * `botocore` from `==1.29.80` to `>=1.36.11,<2`
+  * `hvac` from `==1.2.1` to `~=2.1.0`
+
 # [2.1.0] - 2024-02-13
 * Set Python 3.10 as a default version
 
