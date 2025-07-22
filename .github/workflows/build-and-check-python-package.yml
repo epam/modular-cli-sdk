@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -44,7 +44,7 @@ jobs:
           -Im pip
           --disable-pip-version-check
           --no-python-version-warning
-          install build check-wheel-contents==0.6.0 twine==4.0.2 wheel==0.42.0 wheel-filename==1.4.1
+          install build check-wheel-contents==0.6.0 twine==6.1.0 wheel==0.42.0 wheel-filename==1.4.1
         shell: bash
 
       - name: Build package
