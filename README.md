@@ -1,3 +1,9 @@
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+[![PyPI - Version](https://img.shields.io/pypi/v/modular-cli-sdk.svg)](https://pypi.org/project/modular-cli-sdk)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/modular-cli-sdk.svg)](https://pypi.org/project/modular-cli-sdk)
+
+
 # Modular CLI SDK
 Modular CLI SDK is a core component for CLI tools built atop of Modular Framework
 
