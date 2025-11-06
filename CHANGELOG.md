@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [3.1.0] - 2025-11-05
+* Add library `click>=8.0.0,<9.0.0` to `pyproject.toml` dependencies
+* Add `deprecated` decorator to mark commands as deprecated
+  * Displays a warning message when a deprecated command is used
+  * Warning includes deprecation date, removal date, and alternative command
+  * Color-coded warnings based on time left until removal (yellow for >30 days, red for ≤30 days)
+
 # [3.0.0] - 2025-07-08
 * Remove `setup.py`, `requirements.txt`, and `setup.cfg` files
 * Update the `pyproject.toml` file
