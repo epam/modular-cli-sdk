@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [3.1.1] - 2026-01-14
+* Change name for decorator from `deprecated` to `deprecated_command`
+* Add `deprecated_group` decorator to mark CLI command groups as deprecated
+  * Same features as `deprecated_command` with group-specific messaging
+  * `warn_on_subcommands` parameter to control warning propagation to subcommands
+  * Stores deprecation metadata on group object for programmatic access
+* Add configurable Vault path prefix for secrets storage
+  * New environment variable `MODULAR_CLI_SDK_VAULT_PATH_PREFIX` to specify custom path prefix
+  * Secrets can now be stored under custom paths (e.g., `modular/modular-api.stm.user.configuration`)
+  * Default behavior unchanged (root level) when not configured
+* Add configurable Vault mount point via `MODULAR_CLI_SDK_VAULT_MOUNT_POINT` environment variable
+* Add `exists()` method to `SSMCredentialsManager` to check if configuration already exists
+* Add helper functions `get_vault_token()` and `get_vault_addr()` in constants module
+* Rename environment variables with backward compatibility:
+  * `MODULAR_CLI_VAULT_TOKEN` → `MODULAR_CLI_SDK_VAULT_TOKEN`
+  * `MODULAR_CLI_VAULT_ADDR` → `MODULAR_CLI_SDK_VAULT_ADDR`
+  * Old names are deprecated but still supported
+
 # [3.1.0] - 2025-11-05
 * Add library `click>=8.0.0,<9.0.0` to `pyproject.toml` dependencies
 * Add `deprecated` decorator to mark commands as deprecated
