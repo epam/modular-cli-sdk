@@ -176,6 +176,12 @@ class FileSystemCredentialsManager(AbstractCredentialsManager):
             )
         return f'The {self.module_name} tool configuration has been deleted.'
 
+    def exists(self) -> bool:
+        """
+        Check if configuration already exists
+        """
+        return os.path.exists(self.config_file_path)
+
 
 class SSMCredentialsManager(AbstractCredentialsManager):
 
