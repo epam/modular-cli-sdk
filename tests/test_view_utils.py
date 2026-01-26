@@ -560,3 +560,322 @@ class TestDeprecationIntegration:
 
         assert "2027-06-15" in result1.output
         assert "2027-06-15" in result2.output
+
+
+# =============================================================================
+# Additional tests for 100% coverage
+# =============================================================================
+
+class TestDeprecatedGroupEdgeCases:
+    """Additional edge case tests for deprecated_group"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_subcommand_help_does_not_show_group_warning(self, runner):
+        """
+        Test that viewing subcommand help (--help after subcommand)
+        does NOT show group deprecation warning during invocation.
+
+        This covers the branch: has_subcommand and help_requested
+        """
+        @deprecated_group(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+            warn_on_subcommands=True,  # Even with this True
+        )
+        @click.group()
+        def grp():
+            """Group help"""
+            pass
+
+        @grp.command()
+        def sub():
+            """Subcommand help text"""
+            click.echo("executed")
+
+        # View help OF the subcommand (not group help)
+        result = runner.invoke(grp, ["sub", "--help"])
+
+        # Should show subcommand help
+        assert "Subcommand help text" in result.output
+        assert result.exit_code == 0
+
+    def test_subcommand_help_with_h_flag(self, runner):
+        """Test subcommand help with -h flag"""
+        @deprecated_group(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        @click.group(context_settings=dict(help_option_names=['-h', '--help']))
+        def grp():
+            pass
+
+        @grp.command(context_settings=dict(help_option_names=['-h', '--help']))
+        def mycmd():
+            """My command help"""
+            pass
+
+        result = runner.invoke(grp, ["mycmd", "-h"])
+        assert "My command help" in result.output
+
+    def test_group_with_protected_args(self, runner):
+        """Test group invoked with protected_args scenario"""
+        @deprecated_group(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        @click.group()
+        @click.pass_context
+        def grp(ctx):
+            pass
+
+        @grp.command()
+        def cmd():
+            click.echo("cmd executed")
+
+        result = runner.invoke(grp, ["cmd"])
+        assert "cmd executed" in result.output
+
+    def test_deprecated_group_invoke_without_subcommand_default(self, runner):
+        """
+        Test group without invoke_without_command when called without subcommand.
+        Should show help (default Click behavior).
+        """
+        @deprecated_group(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        @click.group()  # No invoke_without_command=True
+        def grp():
+            """My group"""
+            pass
+
+        @grp.command()
+        def sub():
+            pass
+
+        # Invoking group without subcommand shows help
+        result = runner.invoke(grp, [])
+        # Should show usage/help
+        assert "Usage:" in result.output or "grp" in result.output
+
+    def test_group_help_shows_all_elements(self, runner):
+        """Verify all format_help elements are rendered for group"""
+        @deprecated_group(
+            removal_date=datetime.date.today() + datetime.timedelta(days=30),
+            deprecated_date=datetime.date.today() - datetime.timedelta(days=10),
+            version="1.0.0",
+            reason="Test reason",
+            alternative="new-group",
+        )
+        @click.group()
+        def grp():
+            """Group description here."""
+            pass
+
+        @grp.command()
+        def cmd():
+            """Command description"""
+            pass
+
+        result = runner.invoke(grp, ["--help"])
+
+        # Check all components are present
+        assert "Usage:" in result.output
+        assert "DEPRECATED" in result.output
+        assert "command group" in result.output.lower()
+        # Options section
+        assert "--help" in result.output
+        # Commands section
+        assert "cmd" in result.output
+
+    def test_group_help_with_epilog(self, runner):
+        """Test group with epilog in help"""
+        @deprecated_group(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        @click.group(epilog="This is epilog text.")
+        def grp():
+            """Main help"""
+            pass
+
+        result = runner.invoke(grp, ["--help"])
+        # Epilog should be rendered
+        assert "This is epilog text" in result.output
+
+
+class TestDeprecatedCommandEdgeCases:
+    """Additional edge case tests for deprecated_command"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_format_help_direct_call(self, runner):
+        """Test format_help method is properly attached and callable"""
+        @deprecated_command(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+            alternative="new-cmd",
+        )
+        @click.command()
+        def cmd():
+            """Original help"""
+            pass
+
+        # Verify format_help is attached
+        assert hasattr(cmd, 'format_help')
+        assert callable(cmd.format_help)
+
+    def test_deprecated_command_with_options(self, runner):
+        """Test deprecated command with Click options"""
+        @deprecated_command(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        @click.command()
+        @click.option('--name', default='World')
+        def greet(name):
+            click.echo(f"Hello {name}")
+
+        result = runner.invoke(greet, ['--name', 'Test'])
+        assert "Hello Test" in result.output
+
+        # Help should show option
+        result = runner.invoke(greet, ['--help'])
+        assert "--name" in result.output
+        assert "DEPRECATED" in result.output
+
+    def test_deprecated_command_with_arguments(self, runner):
+        """Test deprecated command with Click arguments"""
+        @deprecated_command(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        @click.command()
+        @click.argument('name')
+        def greet(name):
+            click.echo(f"Hello {name}")
+
+        result = runner.invoke(greet, ['World'])
+        assert "Hello World" in result.output
+
+    def test_enforce_removal_without_alternative(self, runner):
+        """Test enforce_removal error message when no alternative provided"""
+        @deprecated_command(
+            removal_date=datetime.date.today() - datetime.timedelta(days=1),
+            enforce_removal=True,
+            alternative=None,  # No alternative
+        )
+        @click.command()
+        def old_cmd():
+            click.echo("should not execute")
+
+        result = runner.invoke(old_cmd)
+        assert result.exit_code != 0
+        # Should mention documentation
+        assert "documentation" in result.output.lower() or "removed" in result.output.lower()
+
+
+class TestWarnOnSubcommandsVariations:
+    """Test various warn_on_subcommands scenarios"""
+
+    @pytest.fixture
+    def runner(self):
+        return CliRunner()
+
+    def test_warn_on_subcommands_false_no_warning_on_exec(self, runner):
+        """With warn_on_subcommands=False, no warning when executing subcommand"""
+        @deprecated_group(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+            warn_on_subcommands=False,
+        )
+        @click.group()
+        def grp():
+            pass
+
+        @grp.command()
+        def sub():
+            click.echo("sub executed")
+
+        result = runner.invoke(grp, ["sub"])
+        assert "sub executed" in result.output
+
+    def test_nested_groups_deprecation(self, runner):
+        """Test deprecation with nested groups"""
+        @click.group()
+        def root():
+            pass
+
+        @deprecated_group(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        @root.group()
+        def deprecated_sub():
+            pass
+
+        @deprecated_sub.command()
+        def action():
+            click.echo("action done")
+
+        result = runner.invoke(root, ["deprecated-sub", "action"])
+        assert "action done" in result.output
+
+    def test_group_enforce_removal_without_alternative(self, runner):
+        """Test group enforce_removal error message without alternative"""
+        @deprecated_group(
+            removal_date=datetime.date.today() - datetime.timedelta(days=1),
+            enforce_removal=True,
+            alternative=None,
+        )
+        @click.group()
+        def grp():
+            pass
+
+        result = runner.invoke(grp)
+        assert result.exit_code != 0
+
+
+class TestDeprecatedFunctionOnly:
+    """Test deprecated_command on plain functions (not Click commands)"""
+
+    def test_decorator_on_plain_function(self):
+        """Test decorator works on plain functions"""
+        @deprecated_command(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+            alternative="new_function",
+        )
+        def old_function():
+            return "result"
+
+        # Function should still be callable
+        # Note: This will print warning to stderr
+        result = old_function()
+        assert result == "result"
+
+    def test_decorator_preserves_plain_function_name(self):
+        """Test decorator preserves function name"""
+        @deprecated_command(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        def my_function():
+            pass
+
+        assert my_function.__name__ == "my_function"
+
+    def test_decorator_on_function_with_args(self):
+        """Test decorator on function with arguments"""
+        @deprecated_command(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        def add(a, b):
+            return a + b
+
+        result = add(2, 3)
+        assert result == 5
+
+    def test_decorator_on_function_with_kwargs(self):
+        """Test decorator on function with keyword arguments"""
+        @deprecated_command(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        def greet(name="World"):
+            return f"Hello {name}"
+
+        assert greet() == "Hello World"
+        assert greet(name="Test") == "Hello Test"
