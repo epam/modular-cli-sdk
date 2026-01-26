@@ -186,6 +186,22 @@ class TestDeprecatedCommand:
         # Warning should be in stderr (but CliRunner mixes them)
         assert result.exit_code == 0
 
+    def test_decorator_preserves_function_docstring(self, runner):
+        """Test that the original docstring is preserved (with deprecation added)"""
+
+        @deprecated_command(
+            removal_date=datetime.date.today() + datetime.timedelta(days=60),
+        )
+        @click.command()
+        def cmd():
+            """This is the original docstring."""
+            pass
+
+        # Docstring should contain both deprecation info and original
+        assert "original docstring" in (
+                    cmd.callback.__doc__ or "").lower() or \
+               "original docstring" in (cmd.__doc__ or "").lower()
+
     def test_decorator_on_click_command(self, runner):
         @deprecated_command(
             removal_date=datetime.date.today() + datetime.timedelta(days=60),

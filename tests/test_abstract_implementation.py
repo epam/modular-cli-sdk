@@ -7,8 +7,8 @@ but forgotten in one of the concrete implementations.
 
 import inspect
 import pytest
-from abc import ABC, abstractmethod
-from typing import Type, List, Tuple, get_type_hints
+from abc import ABC
+from typing import Type, List, Tuple
 
 from modular_cli_sdk.services.credentials_manager import (
     AbstractCredentialsManager,
@@ -58,7 +58,7 @@ def get_abstract_methods(cls: Type[ABC]) -> set:
 
 
 def get_method_signature(cls: Type, method_name: str) -> inspect.Signature:
-    """Get the signature of a method."""
+    """Get the signature of a method"""
     method = getattr(cls, method_name)
     return inspect.signature(method)
 
@@ -108,9 +108,9 @@ class TestAbstractMethodImplementation:
     def test_all_abstract_methods_exist(
             self,
             abstract_cls: Type[ABC],
-            concrete_cls: Type
+            concrete_cls: Type,
     ) -> None:
-        """Verify all abstract methods are present in concrete class."""
+        """Verify all abstract methods are present in concrete class"""
         abstract_methods = get_abstract_methods(abstract_cls)
 
         for method_name in abstract_methods:
@@ -133,8 +133,8 @@ class TestAbstractMethodImplementation:
             concrete_cls: Type,
     ) -> None:
         """
-        Verify methods are actually implemented,
-         not just passing or raising NotImplementedError.
+        Verify methods are actually implemented, not just passing or
+         raising NotImplementedError
 
         This catches cases where someone adds a method stub like:
             def new_method(self):
@@ -181,7 +181,7 @@ class TestAbstractMethodImplementation:
 
 class TestMethodSignatureConsistency:
     """
-    Ensure all implementations have consistent method signatures.
+    Ensure all implementations have consistent method signatures
 
     This catches issues where:
     - Parameter names differ between implementations
@@ -197,7 +197,7 @@ class TestMethodSignatureConsistency:
     def test_signatures_match_abstract(
             self, abstract_cls: Type[ABC], implementations: List[Type]
     ):
-        """Verify concrete implementations match abstract method signatures."""
+        """Verify concrete implementations match abstract method signatures"""
         abstract_methods = get_abstract_methods(abstract_cls)
 
         for method_name in abstract_methods:
@@ -246,8 +246,8 @@ class TestMethodSignatureConsistency:
                 # At minimum, check that return annotation exists
                 if expected_return is not inspect.Signature.empty:
                     assert impl_return is not inspect.Signature.empty, (
-                        f"{impl.__name__}.{method_name} is missing return "
-                        f"type annotation. Expected: {expected_return}"
+                        f"{impl.__name__}.{method_name} is missing return type "
+                        f"annotation. Expected: {expected_return}"
                     )
 
 
