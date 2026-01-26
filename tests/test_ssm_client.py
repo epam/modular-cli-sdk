@@ -338,7 +338,8 @@ class TestVaultSecretsManager:
         """Test successful parameter deletion from Vault"""
         manager, mock_client = vault_manager_with_mock
 
-        mock_client.secrets.kv.v2.delete_metadata_and_all_versions.return_value = True
+        mock_client.secrets.kv.v2 \
+            .delete_metadata_and_all_versions.return_value = True
 
         result = manager.delete_parameter("test.secret")
 
@@ -348,8 +349,8 @@ class TestVaultSecretsManager:
         """Test parameter deletion failure"""
         manager, mock_client = vault_manager_with_mock
 
-        mock_client.secrets.kv.v2.delete_metadata_and_all_versions.side_effect = Exception(
-            "Failed")
+        mock_client.secrets.kv.v2 \
+            .delete_metadata_and_all_versions.side_effect = Exception("Failed")
 
         result = manager.delete_parameter("test.secret")
 
@@ -407,7 +408,7 @@ class TestVaultSecretsManager:
 
         mock_client.sys.list_mounted_secrets_engines.return_value = {
             'secret/': {},
-            'other/': {}
+            'other/': {},
         }
 
         assert manager.is_secrets_engine_enabled() is True
@@ -422,7 +423,10 @@ class TestVaultSecretsManager:
 
         assert manager.is_secrets_engine_enabled() is False
 
-    def test_is_secrets_engine_enabled_custom_mount(self, vault_manager_with_mock):
+    def test_is_secrets_engine_enabled_custom_mount(
+            self,
+            vault_manager_with_mock,
+    ) -> None:
         """Test checking custom mount point"""
         manager, mock_client = vault_manager_with_mock
 
@@ -555,7 +559,10 @@ class TestSSMSecretsManager:
             mock_boto3_client.delete_parameter \
                 .assert_called_once_with(Name="test.param")
 
-    def test_delete_parameter_client_error_returns_false(self, mock_boto3_client):
+    def test_delete_parameter_client_error_returns_false(
+            self,
+            mock_boto3_client,
+    ) -> None:
         """Test that ClientError on delete returns False"""
         from botocore.exceptions import ClientError
 

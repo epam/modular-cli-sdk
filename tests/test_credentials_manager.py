@@ -5,7 +5,6 @@ Functional tests for CredentialsManager implementations.
 import json
 import os
 import pytest
-import tempfile
 import shutil
 from unittest.mock import MagicMock, patch, PropertyMock
 
@@ -166,7 +165,8 @@ class TestSSMCredentialsManager:
             context=mock_context,
         )
 
-        assert "modular-api.test_module.test_user.configuration" == manager.ssm_secret_name
+        assert "modular-api.test_module.test_user.configuration" == \
+               manager.ssm_secret_name
 
     def test_store_calls_ssm_put_parameter(self, ssm_manager):
         """Test that store() calls SSM put_parameter"""
@@ -281,8 +281,10 @@ class TestSSMCredentialsManager:
         )
         manager.__dict__['ssm_client'] = mock_ssm
 
-        with pytest.raises(ModularCliSdkConfigurationException,
-                           match="not configured"):
+        with pytest.raises(
+                ModularCliSdkConfigurationException,
+                match="not configured",
+        ):
             manager.extract()
 
     def test_clean_up_returns_not_found_message(self, mock_context):
