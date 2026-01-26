@@ -36,15 +36,6 @@ class TestAbstractSecretsManager:
         assert "&" not in result
         assert "*" not in result
 
-    def test_url_from_old_env_fallback(self, monkeypatch):
-        """Test URL from old environment variable (backward compat)"""
-        monkeypatch.delenv("MODULAR_CLI_SDK_VAULT_ADDR", raising=False)
-        monkeypatch.setenv("MODULAR_CLI_VAULT_ADDR", "http://old:8200")
-
-        manager = VaultSecretsManager()
-
-        assert manager.url == "http://old:8200"
-
     def test_url_new_env_takes_priority(self, monkeypatch):
         """Test that new env var takes priority over old"""
         monkeypatch.setenv("MODULAR_CLI_SDK_VAULT_ADDR", "http://new:8200")
@@ -156,6 +147,35 @@ class TestOnPremSecretsManager:
 
 class TestVaultSecretsManager:
     """Tests for VaultSecretsManager"""
+
+    def test_init_client_raises_when_hvac_not_installed(self, monkeypatch):
+        """Test that missing hvac library raises RuntimeError"""
+        monkeypatch.setenv("MODULAR_CLI_SDK_VAULT_ADDR", "http://vault:8200")
+        monkeypatch.setenv("MODULAR_CLI_SDK_VAULT_TOKEN", "test-token")
+
+        manager = VaultSecretsManager()
+
+        # Mock the import to fail
+        import builtins
+        original_import = builtins.__import__
+
+        def mock_import(name, *args, **kwargs):
+            if name == 'hvac':
+                raise ImportError("No module named 'hvac'")
+            return original_import(name, *args, **kwargs)
+
+        with patch.object(builtins, '__import__', side_effect=mock_import):
+            # Force re-initialization
+            manager._client = None
+            with pytest.raises(RuntimeError, match="Install hvac"):
+                manager._init_client()
+
+    def test_url_from_old_env_fallback(self, monkeypatch):
+        """Test URL from old environment variable (backward compat)"""
+        monkeypatch.delenv("MODULAR_CLI_SDK_VAULT_ADDR", raising=False)
+        monkeypatch.setenv("MODULAR_CLI_VAULT_ADDR", "http://old:8200")
+        manager = VaultSecretsManager()
+        assert manager.url == "http://old:8200"
 
     def test_mount_point_from_constructor(self):
         """Test mount_point from constructor takes priority"""

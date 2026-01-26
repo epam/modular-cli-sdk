@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 # [3.1.3] - 2025-01-26
 * Add comprehensive unit tests for credentials managers and secrets clients
-* Improve test coverage from ~50% to ~97%
+* Improve test coverage from ~50% to ~99%
 
 # [3.1.2] - 2026-01-16
 * Add missing `exists()` method implementation to `FileSystemCredentialsManager`

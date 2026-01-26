@@ -359,6 +359,28 @@ class TestDeprecatedGroup:
         assert "DEPRECATED" in result.output
         assert "command group" in result.output.lower()
 
+    def test_enforce_removal_shows_full_error_message(self, runner):
+        """Test that enforce_removal shows complete error with alternative"""
+
+        @deprecated_group(
+            removal_date=datetime.date.today() - datetime.timedelta(days=5),
+            enforce_removal=True,
+            alternative="new-group",
+        )
+        @click.group()
+        def grp():
+            pass
+
+        @grp.command()
+        def sub():
+            click.echo("should not execute")
+
+        result = runner.invoke(grp, ["sub"])
+
+        assert result.exit_code != 0
+        assert "REMOVED" in result.output
+        assert "new-group" in result.output or "Use instead" in result.output
+
     def test_warn_on_subcommands_true(self, runner):
         @deprecated_group(
             removal_date=datetime.date.today() + datetime.timedelta(days=60),
