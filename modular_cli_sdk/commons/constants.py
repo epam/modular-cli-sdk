@@ -18,7 +18,7 @@ ENV_VAULT_ADDR_OLD = 'MODULAR_CLI_VAULT_ADDR'
 # =============================================================================
 # Default values
 # =============================================================================
-DEFAULT_VAULT_MOUNT_POINT = 'secret'
+DEFAULT_VAULT_MOUNT_POINT = 'kv'
 DEFAULT_VAULT_PATH_PREFIX = ''  # Empty = root level (old behavior)
 
 # =============================================================================

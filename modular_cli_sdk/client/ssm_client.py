@@ -100,7 +100,7 @@ class VaultSecretsManager(AbstractSecretsManager):
     - MODULAR_CLI_VAULT_* (old, deprecated but supported)
     """
 
-    KEY = 'kv'
+    KEY = 'data'
 
     def __init__(
             self,
@@ -112,7 +112,7 @@ class VaultSecretsManager(AbstractSecretsManager):
         """
         Initialize VaultSecretsManager.
 
-        :param mount_point: Vault KV mount point (default: 'secret' or from env)
+        :param mount_point: Vault KV mount point (default: 'kv' or from env)
         :param path_prefix: Path prefix for secrets (default: '' or from env)
         :param url: Vault server URL (default: from env)
         :param token: Vault token (default: from env)
