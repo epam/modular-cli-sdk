@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # [3.1.4] - 2026-04-06
 * Fix backward compatibility for Vault secrets manager
   * Fix default mount point from `secret` to `kv` to match pre-3.1.1 behavior
-  * Fix secret dictionary key from `kv` to `data` to ensure existing secrets remain readable
+  * Fix secret dictionary key from `kv` to `data` to match pre-3.1.1 behavior
+  * Add configurable secret key via `MODULAR_CLI_SDK_VAULT_SECRET_KEY` environment variable
+    * Deployments that ran 3.1.1–3.1.3 should set this to `kv` to read existing secrets
 
 # [3.1.3] - 2026-01-26
 * Add comprehensive unit tests for credentials managers and secrets clients

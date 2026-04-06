@@ -8,6 +8,7 @@ ENV_VAULT_TOKEN = 'MODULAR_CLI_SDK_VAULT_TOKEN'
 ENV_VAULT_ADDR = 'MODULAR_CLI_SDK_VAULT_ADDR'
 ENV_VAULT_PATH_PREFIX = 'MODULAR_CLI_SDK_VAULT_PATH_PREFIX'
 ENV_VAULT_MOUNT_POINT = 'MODULAR_CLI_SDK_VAULT_MOUNT_POINT'
+ENV_VAULT_SECRET_KEY = 'MODULAR_CLI_SDK_VAULT_SECRET_KEY'
 
 # =============================================================================
 # OLD Environment variable names (deprecated, kept for backward compatibility)
@@ -20,6 +21,7 @@ ENV_VAULT_ADDR_OLD = 'MODULAR_CLI_VAULT_ADDR'
 # =============================================================================
 DEFAULT_VAULT_MOUNT_POINT = 'kv'
 DEFAULT_VAULT_PATH_PREFIX = ''  # Empty = root level (old behavior)
+DEFAULT_VAULT_SECRET_KEY = 'data'
 
 # =============================================================================
 # Context keys

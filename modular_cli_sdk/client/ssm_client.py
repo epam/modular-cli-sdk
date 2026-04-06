@@ -17,6 +17,8 @@ from modular_cli_sdk.commons.constants import (
     ENV_VAULT_MOUNT_POINT,
     DEFAULT_VAULT_MOUNT_POINT,
     DEFAULT_VAULT_PATH_PREFIX,
+    ENV_VAULT_SECRET_KEY,
+    DEFAULT_VAULT_SECRET_KEY,
     get_vault_token,
     get_vault_addr,
 )
@@ -100,12 +102,11 @@ class VaultSecretsManager(AbstractSecretsManager):
     - MODULAR_CLI_VAULT_* (old, deprecated but supported)
     """
 
-    KEY = 'data'
-
     def __init__(
             self,
             mount_point: Optional[str] = None,
             path_prefix: Optional[str] = None,
+            secret_key: Optional[str] = None,
             url: Optional[str] = None,
             token: Optional[str] = None,
     ) -> None:
@@ -114,14 +115,23 @@ class VaultSecretsManager(AbstractSecretsManager):
 
         :param mount_point: Vault KV mount point (default: 'kv' or from env)
         :param path_prefix: Path prefix for secrets (default: '' or from env)
+        :param secret_key: Key within Vault secret dict (default: 'data' or from env)
         :param url: Vault server URL (default: from env)
         :param token: Vault token (default: from env)
         """
         self._client = None
         self._mount_point = mount_point
         self._path_prefix = path_prefix
+        self._secret_key = secret_key
         self._url = url
         self._token = token
+
+    @property
+    def secret_key(self) -> str:
+        """Get secret key from constructor, env var, or default."""
+        if self._secret_key is not None:
+            return self._secret_key
+        return os.getenv(ENV_VAULT_SECRET_KEY, DEFAULT_VAULT_SECRET_KEY)
 
     @property
     def mount_point(self) -> str:
@@ -220,7 +230,7 @@ class VaultSecretsManager(AbstractSecretsManager):
         except Exception as e:
             _LOG.debug(f'Failed to get parameter {full_path}: {e}')
             return None
-        return response.get('data', {}).get('data', {}).get(self.KEY)
+        return response.get('data', {}).get('data', {}).get(self.secret_key)
 
     def put_parameter(
             self,
@@ -233,7 +243,7 @@ class VaultSecretsManager(AbstractSecretsManager):
         try:
             self.client.secrets.kv.v2.create_or_update_secret(
                 path=full_path,
-                secret={self.KEY: value},
+                secret={self.secret_key: value},
                 mount_point=self.mount_point,
             )
             return True
