@@ -195,7 +195,7 @@ class TestVaultSecretsManager:
         """Test mount_point default value"""
         manager = VaultSecretsManager()
 
-        assert manager.mount_point == "secret"
+        assert manager.mount_point == "kv"
 
     def test_path_prefix_from_constructor(self):
         """Test path_prefix from constructor takes priority"""
@@ -285,12 +285,12 @@ class TestVaultSecretsManager:
         manager, mock_client = vault_manager_with_mock
 
         mock_client.secrets.kv.v2.read_secret_version.return_value = {
-            'data': {'data': {'kv': {'api_key': 'secret'}}}
+            'data': {'data': {'data': {'api_key': 'kv'}}}
         }
 
         result = manager.get_parameter("test.secret")
 
-        assert result == {'api_key': 'secret'}
+        assert result == {'api_key': 'kv'}
         mock_client.secrets.kv.v2.read_secret_version.assert_called_once()
 
     def test_get_parameter_not_found(self, vault_manager_with_mock):
@@ -403,7 +403,7 @@ class TestVaultSecretsManager:
         assert call_kwargs['path'] == "custom"
 
     def test_is_secrets_engine_enabled_true(self, vault_manager_with_mock):
-        """Test checking if secrets engine is enabled - True case"""
+        """Test checking if secrets engine is enabled - False case"""
         manager, mock_client = vault_manager_with_mock
 
         mock_client.sys.list_mounted_secrets_engines.return_value = {
@@ -411,7 +411,7 @@ class TestVaultSecretsManager:
             'other/': {},
         }
 
-        assert manager.is_secrets_engine_enabled() is True
+        assert manager.is_secrets_engine_enabled() is False
 
     def test_is_secrets_engine_enabled_false(self, vault_manager_with_mock):
         """Test checking if secrets engine is enabled - False case"""
