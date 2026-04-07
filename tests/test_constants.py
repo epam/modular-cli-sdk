@@ -97,5 +97,5 @@ class TestConstants:
 
     def test_default_values(self):
         """Test default value constants"""
-        assert DEFAULT_VAULT_MOUNT_POINT == "secret"
+        assert DEFAULT_VAULT_MOUNT_POINT == "kv"
         assert DEFAULT_VAULT_PATH_PREFIX == ""
