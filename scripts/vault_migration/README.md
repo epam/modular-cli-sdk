@@ -113,7 +113,7 @@ key `"kv"` → `"data"`.
 ## Prerequisites
 
 ```bash
-pip install hvac==0.11.2
+pip install hvac==2.1.0
 ```
 
 ## Quick Fix (Single Command)
