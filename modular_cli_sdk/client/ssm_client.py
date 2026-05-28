@@ -192,7 +192,8 @@ class VaultSecretsManager(AbstractSecretsManager):
             import hvac
         except ImportError:
             raise RuntimeError(
-                'Install hvac to use Vault client. "pip install hvac==0.11.2"'
+                'Install hvac to use Vault client: '
+                '"pip install modular-cli-sdk[hvac]"'
             )
 
         url = self.url

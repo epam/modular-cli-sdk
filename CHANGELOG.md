@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [3.1.5] - 2026-05-28
+### Python 3.14 Compatibility
+* Add support for Python 3.14 (now the primary supported version)
+* Extend supported Python range to 3.10–3.14
+* Bump `click` to `>=8.3,<9` for Python 3.14 compatibility
+* Upgrade dev dependencies: `pytest` to v9, `pytest-cov` to v7, `moto` to v5
+* Update Ruff and Mypy configuration to target Python 3.14
+
 # [3.1.4] - 2026-04-06
 * Fix backward compatibility for Vault secrets manager
   * Fix default mount point from `secret` to `kv` to match pre-3.1.1 behavior
