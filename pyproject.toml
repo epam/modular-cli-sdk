@@ -14,9 +14,11 @@ description = "Core component for CLI tools built atop of Modular Framework"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.14,<4"
 classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent"
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "boto3>=1.36.11,<2",
