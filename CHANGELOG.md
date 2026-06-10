@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # [3.1.5] - 2026-05-28
 ### Python 3.14 Compatibility
 * Add support for Python 3.14 (now the primary supported version)
-* Extend supported Python range to 3.10–3.14
 * Bump `click` to `>=8.3,<9` for Python 3.14 compatibility
 * Upgrade dev dependencies: `pytest` to v9, `pytest-cov` to v7, `moto` to v5
 * Update Ruff and Mypy configuration to target Python 3.14
