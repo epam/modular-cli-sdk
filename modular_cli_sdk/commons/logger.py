@@ -65,7 +65,13 @@ logger = logging.getLogger(__name__)
 logger.propagate = False
 console_handler = logging.StreamHandler(stream=stdout)
 console_handler.setFormatter(SensitiveFormatter(LOG_FORMAT))
-logger.addHandler(console_handler)
+# Guard: avoid adding a duplicate handler on module reload / re-import.
+# logging.getLogger returns the SAME cached logger object, so without this
+# guard importlib.reload() (and some import patterns) leak a handler each time.
+if not logger.handlers:
+    console_handler = logging.StreamHandler(stream=stdout)
+    console_handler.setFormatter(SensitiveFormatter(LOG_FORMAT))
+    logger.addHandler(console_handler)
 
 log_level = _name_to_level.get(os.environ.get('log_level'))
 if not log_level:

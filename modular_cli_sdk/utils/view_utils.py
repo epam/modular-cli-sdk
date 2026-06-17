@@ -6,6 +6,8 @@ from typing import Any, Callable, Optional, Union, Dict, TypeVar
 
 import click
 
+# TODO(click9): click.MultiCommand is removed in Click 9.0 — switch bound to click.Group.
+#   Safe now because pyproject pins click<9. See lines ~232, ~337, ~363.
 G = TypeVar('G', bound=click.MultiCommand)
 
 
@@ -229,6 +231,7 @@ def deprecated_command(
     def _decorator(
             target: Union[Callable[..., Any], click.Command],
     ) -> Union[Callable[..., Any], click.Command]:
+        # TODO(click9): replace click.MultiCommand with click.Group when bumping to click>=9
         if isinstance(target, click.MultiCommand):
             raise TypeError(
                 "@deprecated_command cannot be used on click.Group/MultiCommand. "
@@ -334,6 +337,7 @@ def deprecated_group(
             click.secho(message=line, fg=color, bold=True, err=True)
 
     def decorator(grp: G) -> G:
+        # TODO(click9): replace click.MultiCommand with click.Group when bumping to click>=9
         if not isinstance(grp, click.MultiCommand):
             raise TypeError(
                 f"@deprecated_group expects click.Group/MultiCommand, "
@@ -360,6 +364,8 @@ def deprecated_group(
         @functools.wraps(orig_invoke)
         def wrapped_invoke(ctx: click.Context) -> Any:
             subcommand = ctx.invoked_subcommand
+            # TODO(click9): ctx.protected_args is removed in Click 9.0 — remaining tokens move into
+            #   ctx.args. This is NOT a drop-in replacement; revisit logic when bumping to click>=9.
             has_subcommand = subcommand is not None or bool(ctx.protected_args)
             help_requested = '--help' in ctx.args or '-h' in ctx.args
 
