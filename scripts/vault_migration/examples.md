@@ -19,31 +19,7 @@ echo $MODULAR_CLI_SDK_VAULT_PATH_PREFIX
 MODULAR_CLI_SDK_VAULT_PATH_PREFIX='modular'
 ```
 
-
-
-# DEV env
-```bash
-export VAULT_ADDR=
-export VAULT_TOKEN=
-# Dry run
-python vault_patch.py --list_incorrect --fix_incorrect --scan_all_mounts --delete_source --dry_run --vault_addr $VAULT_ADDR --vault_token $VAULT_TOKEN --path_prefix modular
-# Apply patch but do not remove old
-python vault_patch.py --list_incorrect --fix_incorrect --scan_all_mounts --vault_addr $VAULT_ADDR --vault_token $VAULT_TOKEN --path_prefix modular
-# Apply patch and remove old
-python vault_patch.py --list_incorrect --fix_incorrect --scan_all_mounts --delete_source --vault_addr $VAULT_ADDR --vault_token $VAULT_TOKEN --path_prefix modular
-```
-# QA env
-```bash
-export VAULT_ADDR=
-export VAULT_TOKEN=
-# Dry run
-python vault_patch.py --list_incorrect --fix_incorrect --scan_all_mounts --delete_source --dry_run --vault_addr $VAULT_ADDR --vault_token $VAULT_TOKEN --path_prefix modular
-# Apply patch but do not remove old
-python vault_patch.py --list_incorrect --fix_incorrect --scan_all_mounts --vault_addr $VAULT_ADDR --vault_token $VAULT_TOKEN --path_prefix modular
-# Apply patch and remove old
-python vault_patch.py --list_incorrect --fix_incorrect --scan_all_mounts --delete_source --vault_addr $VAULT_ADDR --vault_token $VAULT_TOKEN --path_prefix modular
-```
-# PROD env
+# env
 ```bash
 export VAULT_ADDR=
 export VAULT_TOKEN=
