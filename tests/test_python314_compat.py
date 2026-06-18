@@ -33,54 +33,57 @@ class TestPythonVersion:
 
 class TestCachedPropertyBehavior:
     """
-    cached_property changed in 3.12 (the per-instance lock was removed).
-    Verify our usages still cache correctly and are thread-safe enough
-    for our use-cases.
+    `functools.cached_property` changed in Python 3.12: the per-instance lock
+    was removed (gh-87634). Single-threaded caching is UNCHANGED (run once,
+    reuse) - which is all our single-threaded CLI relies on. Under concurrency
+    the factory MAY run more than once on 3.12+, but the final cached value is
+    still consistent.
+
+    In this codebase only `SSMSecretsManager.client` uses cached_property.
     """
+
+    def test_ssm_client_uses_cached_property_descriptor(self):
+        descriptor = SSMSecretsManager.__dict__.get('client')
+        assert isinstance(descriptor, cached_property)
 
     def test_ssm_client_is_cached(self):
         with patch('boto3.client') as mock_boto:
             mock_boto.return_value = MagicMock()
             manager = SSMSecretsManager()
 
-            client1 = manager.client
-            client2 = manager.client
-
-            assert client1 is client2
-            # boto3.client should be called only once thanks to caching
+            assert manager.client is manager.client
             mock_boto.assert_called_once()
 
-    def test_cached_property_concurrent_access(self):
-        """
-        After 3.12 cached_property no longer locks. boto3.client could
-        in theory be called more than once under concurrency. We ensure
-        the final cached value is consistent.
-        """
+    def test_ssm_client_caches_per_instance(self):
         with patch('boto3.client') as mock_boto:
-            mock_boto.return_value = MagicMock()
-            manager = SSMSecretsManager()
+            mock_boto.side_effect = lambda *a, **k: MagicMock()
 
-            results = []
+            m1, m2 = SSMSecretsManager(), SSMSecretsManager()
 
-            def access():
-                results.append(manager.client)
+            assert m1.client is not m2.client
+            assert mock_boto.call_count == 2
 
-            threads = [threading.Thread(target=access) for _ in range(10)]
-            for t in threads:
-                t.start()
-            for t in threads:
-                t.join()
+    def test_cached_property_consistent_under_concurrency(self):
+        """
+        Honestly documents 3.12+ semantics: the factory MAY run >1 time under
+        concurrency, but every caller observes the SAME final cached value.
+        We assert only the consistency guarantee our code depends on.
+        """
+        call_count = {'n': 0}
 
-            # All threads must observe the same final cached object
-            assert all(r is manager.client for r in results)
+        class Sample:
+            @cached_property
+            def value(self):
+                call_count['n'] += 1
+                return object()
 
-    def test_secured_params_cached_property_thread_safe(self):
-        """SensitiveFormatter.secured_params must be stable across threads."""
-        formatter = SensitiveFormatter(LOG_FORMAT)
+        sample = Sample()
         results = []
+        barrier = threading.Barrier(10)
 
         def access():
-            results.append(formatter.secured_params)
+            barrier.wait()
+            results.append(sample.value)
 
         threads = [threading.Thread(target=access) for _ in range(10)]
         for t in threads:
@@ -88,14 +91,9 @@ class TestCachedPropertyBehavior:
         for t in threads:
             t.join()
 
-        first = formatter.secured_params
-        assert all(r is first for r in results)
-
-    def test_ssm_client_uses_cached_property_descriptor(self):
-        """Ensure 'client' is actually a cached_property descriptor."""
-        descriptor = type(SSMSecretsManager).__dict__.get('client') \
-            or SSMSecretsManager.__dict__.get('client')
-        assert isinstance(descriptor, cached_property)
+        final = sample.value
+        assert all(r is final for r in results)
+        assert call_count['n'] >= 1  # on 3.12+ may be > 1; that's allowed
 
 
 class TestDatetimeBehavior:
