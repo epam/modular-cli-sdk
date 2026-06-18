@@ -146,10 +146,10 @@ class TestRegexBehavior:
         import logging
         record = logging.LogRecord(
             name="t", level=logging.INFO, pathname="", lineno=0,
-            msg='{"password": "пароль123"}', args=(), exc_info=None,
+            msg='{"password": "qwerty123"}', args=(), exc_info=None,
         )
         result = formatter.format(record)
-        assert "пароль123" not in result
+        assert "qwerty123" not in result
         assert "****" in result
 
 
