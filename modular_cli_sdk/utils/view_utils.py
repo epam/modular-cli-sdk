@@ -7,7 +7,6 @@ from typing import Any, Callable, Optional, Union, Dict, TypeVar
 import click
 
 # TODO(click9): click.MultiCommand is removed in Click 9.0 — switch bound to click.Group.
-#   Safe now because pyproject pins click<9
 
 G = TypeVar('G', bound=click.MultiCommand)
 

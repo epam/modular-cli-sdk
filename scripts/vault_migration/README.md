@@ -22,7 +22,7 @@ JSON body: { "{your_key}": { ...your actual values... } }
 
 When you read a secret back, the full response looks like:
 
-```json
+```json5
 {
   "data": {                    // ← Vault API envelope (always "data")
     "data": {                  // ← Vault KV v2 versioning (always "data")
