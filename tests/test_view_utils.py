@@ -879,3 +879,34 @@ class TestDeprecatedFunctionOnly:
 
         assert greet() == "Hello World"
         assert greet(name="Test") == "Hello Test"
+
+def test_subcommand_executed_no_help_warn_disabled_does_not_warn():
+    """
+    Covers the 319->326 branch: a subcommand is invoked WITHOUT --help,
+    but warn_on_subcommands=False, so no warning fires.
+    """
+    import click
+    from click.testing import CliRunner
+    from modular_cli_sdk.utils.view_utils import deprecated_group
+
+    @deprecated_group(
+        removal_date='2099-01-01',
+        warn_on_subcommands=False,   # key: disables subcommand warnings
+    )
+    @click.group()
+    def grp():
+        pass
+
+    @grp.command()
+    def child():
+        click.echo("ran child")
+
+    runner = CliRunner()
+    # invoke the subcommand directly, no --help
+    result = runner.invoke(grp, ['child'])
+
+    assert result.exit_code == 0
+    assert "ran child" in result.output
+    # the deprecation block must NOT appear
+
+    assert "DEPRECATED" not in result.output

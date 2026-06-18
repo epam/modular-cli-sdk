@@ -5,24 +5,25 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "modular-cli-sdk"
-version = "3.1.4"
+version = "4.0.0"
 authors = [
     {name = "EPAM Systems", email = "support@syndicate.team"}
 ]
 license = {file = "LICENSE"}
 description = "Core component for CLI tools built atop of Modular Framework"
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.10"
+requires-python = ">=3.14,<4"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent"
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "boto3>=1.36.11,<2",
     "botocore>=1.36.11,<2",
-    "click>=8.0.0,<9.0.0"
+    "click>=8.3,<9",
 ]
 
 [project.urls]
@@ -33,9 +34,9 @@ Changelog = "https://github.com/epam/modular-cli-sdk/blob/main/CHANGELOG.md"
 [project.optional-dependencies]
 hvac = ["hvac~=2.1.0"]
 dev = [
-    "pytest>=7.0.0,<9.0.0",
-    "pytest-cov>=4.0.0,<6.0.0",
-    "moto[ssm]>=4.0.0,<6.0.0",
+    "pytest>=9,<10",
+    "pytest-cov>=7,<8",
+    "moto[ssm]>=5,<6",
 ]
 all = [
     "modular-cli-sdk[hvac,dev]"
@@ -59,17 +60,19 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
     "-v",
+    "-ra",
     "--strict-markers",
+    "--strict-config",
     "--tb=short",
+    # coverage runs by default; drop these if you want plain `pytest` faster
+    "--cov=modular_cli_sdk",
+    "--cov-report=term-missing",
 ]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
+    "compat: marks Python 3.14 migration / compatibility tests",
 ]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-]
-
 
 # =============================================================================
 # Coverage Configuration
@@ -77,6 +80,7 @@ filterwarnings = [
 [tool.coverage.run]
 source = ["modular_cli_sdk"]
 branch = true
+concurrency = ["thread"]
 omit = [
     "*/tests/*",
     "*/__init__.py",
@@ -90,6 +94,7 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "if __name__ == .__main__.:",
     "@abstractmethod",
+    "@abc.abstractmethod",
     "\\.\\.\\.",
 ]
 fail_under = 70
@@ -101,7 +106,7 @@ skip_covered = false
 # Ruff (Linter & Formatter)
 # =============================================================================
 [tool.ruff]
-target-version = "py310"
+target-version = "py314"
 line-length = 88
 exclude = [
     ".git",
@@ -118,13 +123,24 @@ select = [
     "W",      # pycodestyle warnings
     "F",      # Pyflakes
     "I",      # isort
-    "UP",     # pyupgrade
+    "UP",     # pyupgrade  <-- flags 3.10-era idioms to modernize for 3.14
     "B",      # flake8-bugbear
     "SIM",    # flake8-simplify
+    "C4",     # flake8-comprehensions
+    "PIE",    # flake8-pie
+    "RUF",    # Ruff-specific rules
 ]
 ignore = [
     "E501",   # line too long (handled by formatter)
     "B008",   # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests intentionally use patterns linters dislike
+"tests/**/*.py" = [
+    "B011",   # assert False
+    "SIM",    # simplifications not worth it in tests
+    "UP",     # don't force modernization in tests
 ]
 
 [tool.ruff.lint.isort]
@@ -135,10 +151,14 @@ known-first-party = ["modular_cli_sdk"]
 # Mypy (Type Checking)
 # =============================================================================
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.14"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+# extra strictness useful when verifying a migration
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
 exclude = [
     "tests/",
     "build/",
