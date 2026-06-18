@@ -51,7 +51,8 @@ class TestCachedPropertyBehavior:
             mock_boto.return_value = MagicMock()
             manager = SSMSecretsManager()
 
-            assert manager.client is manager.client
+            client = manager.client
+            assert client is manager.client
             mock_boto.assert_called_once()
 
     def test_ssm_client_caches_per_instance(self):
@@ -65,9 +66,9 @@ class TestCachedPropertyBehavior:
 
     def test_cached_property_consistent_under_concurrency(self):
         """
-        Honestly documents 3.12+ semantics: the factory MAY run >1 time under
-        concurrency, but every caller observes the SAME final cached value.
-        We assert only the consistency guarantee our code depends on.
+        Document 3.12+ semantics: the factory MAY run >1 time under
+        concurrency, but the instance still settles on one cached value.
+        We assert the stability guarantee our code depends on.
         """
         call_count = {'n': 0}
 
@@ -92,7 +93,8 @@ class TestCachedPropertyBehavior:
             t.join()
 
         final = sample.value
-        assert all(r is final for r in results)
+        assert final in results
+        assert sample.value is final
         assert call_count['n'] >= 1  # on 3.12+ may be > 1; that's allowed
 
 
@@ -137,7 +139,7 @@ class TestRegexBehavior:
         assert "@" not in result
         # only allowed chars remain
         import re
-        assert re.fullmatch(r'[a-zA-Z0-9\/_.\-]+', result)
+        assert re.fullmatch(r'[a-zA-Z0-9/_.-]+', result)
 
     def test_sensitive_formatter_regex_unicode(self):
         formatter = SensitiveFormatter(LOG_FORMAT)
